@@ -7,6 +7,8 @@ namespace FarmHealthReport_ScheduleJob.DTOs
     {
         public string FileName { get; set; } = string.Empty;
         public string FileContent { get; set; } = string.Empty;
+        public long FileSize { get; set; } // in bytes
+        public DateTime LastModifiedTime { get; set; }
 
         // Retrieve the list of document file report text content from synced local OneDrive
         public static List<DocumentFile> ReadDocsFromLocalOneDrive()
@@ -19,12 +21,14 @@ namespace FarmHealthReport_ScheduleJob.DTOs
 
                 // Get all the htm files' path from the folder path
                 string folderPath = @"C:\Users\4093094\Jabil\NurulNajihah AbdulRahim - FARM HEALTH DATA";
-                var filePaths = Directory.GetFiles(folderPath, "*.htm");
+                ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
+                var filePaths = Directory.GetFiles(folderPath, "*.htm");
                 ConsoleLogger.LogInfo($"{filePaths.Length} document(s) found.");
 
                 foreach (var filePath in filePaths)
                 {
+                    var fileInfo = new FileInfo(filePath);
                     var doc = new HtmlDocument();
                     doc.Load(filePath);
 
@@ -33,6 +37,8 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                     {
                         FileName = Path.GetFileName(filePath),
                         FileContent = doc.DocumentNode.InnerText,
+                        FileSize = fileInfo.Length,
+                        LastModifiedTime = fileInfo.LastWriteTime,
                     });
                 }
             }

@@ -19,7 +19,9 @@ namespace FarmHealthReport_ScheduleJob
                 foreach (var docReport in docReportContentList)
                 {
                     Console.WriteLine($"Document #{i}");
-                    Console.WriteLine($"Name    : {docReport.FileName}");
+                    Console.WriteLine($"Name            : {docReport.FileName}");
+                    Console.WriteLine($"Size            : {docReport.FileSize} bytes");
+                    Console.WriteLine($"Last Modified   : {docReport.LastModifiedTime:d MMM yyyy, h:mm tt}");
                     Console.WriteLine("");
 
                     // Insert the document report data into the database
