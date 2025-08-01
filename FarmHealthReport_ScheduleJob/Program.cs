@@ -11,10 +11,20 @@ namespace FarmHealthReport_ScheduleJob
         {
             DisplayProgramTitle();
 
+            // Prompt the user to enter the folder path to get the document reports.
+            //string folderPath = GetFolderPathFromUser();
+            //var docReportContentList = DocumentFile.ReadDocsFromLocalPath(folderPath);
+
+            // Get the document reports from the local OneDrive folder path.
             var docReportContentList = DocumentFile.ReadDocsFromLocalOneDrive();
 
             if (docReportContentList.Count != 0)
             {
+                ConsoleLogger.LogStep("Starting to process document reports for data extraction and database insertion...\n");
+
+                // Start timer
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
                 int i = 1;
                 foreach (var docReport in docReportContentList)
                 {
@@ -30,8 +40,13 @@ namespace FarmHealthReport_ScheduleJob
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine(new string('-', 50));
                     Console.ResetColor();
-                    i = i + 1;
+                    i++;
                 }
+
+                // Stop timer
+                stopwatch.Stop();
+                TimeSpan duration = stopwatch.Elapsed;
+                ConsoleLogger.LogSuccess($"Document processing completed in {duration.TotalSeconds:F2} seconds.");
             }
             else
             {
@@ -55,6 +70,34 @@ namespace FarmHealthReport_ScheduleJob
             Console.WriteLine("==================================================");
             Console.ResetColor();
             Console.WriteLine();
+        }
+
+        // Prompt the user to enter the folder path
+        static string GetFolderPathFromUser()
+        {
+            string? folderPath;
+
+            Console.Write("Enter the folder path: ");
+            folderPath = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+            {
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    ConsoleLogger.LogWarning("Folder path cannot be empty.\n");
+                }
+                else if (!Directory.Exists(folderPath))
+                {
+                    ConsoleLogger.LogWarning("The specified folder does not exist.\n");
+                }
+
+                Console.Write("Please try again: ");
+                folderPath = Console.ReadLine();
+            }
+
+
+            ConsoleLogger.LogSuccess("Folder path accepted.\n");
+            return folderPath;
         }
 
         // Extract the data from the document report text body and insert data to database

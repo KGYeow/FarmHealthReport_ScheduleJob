@@ -51,5 +51,46 @@ namespace FarmHealthReport_ScheduleJob.DTOs
             Console.WriteLine();
             return allDocs;
         }
+
+        // Retrieve the list of document file report text content from a local path location.
+        public static List<DocumentFile> ReadDocsFromLocalPath(string folderPath)
+        {
+            var allDocs = new List<DocumentFile>();
+
+            try
+            {
+                ConsoleLogger.LogStep("Retrieving document file reports from local folder...");
+
+                // Get all the htm files' path from the folder path
+                ConsoleLogger.LogInfo($"Folder path: {folderPath}");
+
+                var filePaths = Directory.GetFiles(folderPath, "*.htm");
+                ConsoleLogger.LogInfo($"{filePaths.Length} document(s) found.");
+
+                foreach (var filePath in filePaths)
+                {
+                    var fileInfo = new FileInfo(filePath);
+                    var doc = new HtmlDocument();
+                    doc.Load(filePath);
+
+                    // Extract document content in text string
+                    allDocs.Add(new DocumentFile()
+                    {
+                        FileName = Path.GetFileName(filePath),
+                        FileContent = doc.DocumentNode.InnerText,
+                        FileSize = fileInfo.Length,
+                        LastModifiedTime = fileInfo.LastWriteTime,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleLogger.LogError("An unexpected error occurred.");
+                Console.WriteLine($"Details: {ex.Message}");
+            }
+
+            Console.WriteLine();
+            return allDocs;
+        }
     }
 }
