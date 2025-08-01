@@ -1,0 +1,49 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\4093094\\source\\repos\\FarmHealthReport_ScheduleJob\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{817F23ED-4869-4A87-8214-19164DDBCEEF}|FarmHealthReport_ScheduleJob\\FarmHealthReport_ScheduleJob.csproj|c:\\users\\4093094\\source\\repos\\farmhealthreport_schedulejob\\farmhealthreport_schedulejob\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{817F23ED-4869-4A87-8214-19164DDBCEEF}|FarmHealthReport_ScheduleJob\\FarmHealthReport_ScheduleJob.csproj|solutionrelative:farmhealthreport_schedulejob\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 150,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\4093094\\source\\repos\\FarmHealthReport_ScheduleJob\\FarmHealthReport_ScheduleJob\\Program.cs",
+              "RelativeDocumentMoniker": "FarmHealthReport_ScheduleJob\\Program.cs",
+              "ToolTip": "C:\\Users\\4093094\\source\\repos\\FarmHealthReport_ScheduleJob\\FarmHealthReport_ScheduleJob\\Program.cs",
+              "RelativeToolTip": "FarmHealthReport_ScheduleJob\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAApwAgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-04T05:29:19.113Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
