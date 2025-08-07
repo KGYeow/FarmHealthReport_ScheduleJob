@@ -12,15 +12,20 @@
         public static void LogWarning(string message)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("[WARNING] " + message);
+            Console.WriteLine("[WARN] " + message);
+            Console.ResetColor();
+        }
+
+        public static void LogDebug(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("[DEBUG] " + message);
             Console.ResetColor();
         }
 
         public static void LogInfo(string message)
         {
-            //Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("[INFO] " + message);
-            //Console.ResetColor();
         }
 
         public static void LogStep(string message)

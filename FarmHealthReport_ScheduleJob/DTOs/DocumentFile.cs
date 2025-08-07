@@ -24,7 +24,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                 ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
                 var filePaths = Directory.GetFiles(folderPath, "*.htm");
-                ConsoleLogger.LogInfo($"{filePaths.Length} document(s) found.");
+                ConsoleLogger.LogInfo($"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - Found {filePaths.Length} file(s) in folder.");
 
                 foreach (var filePath in filePaths)
                 {
@@ -44,8 +44,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogError("An unexpected error occurred.");
-                Console.WriteLine($"Details: {ex.Message}");
+                ConsoleLogger.LogError($"{ex.Message}");
             }
 
             Console.WriteLine();
@@ -65,7 +64,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                 ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
                 var filePaths = Directory.GetFiles(folderPath, "*.htm");
-                ConsoleLogger.LogInfo($"{filePaths.Length} document(s) found.");
+                ConsoleLogger.LogInfo($"{filePaths.Length} document{(filePaths.Length == 1 ? "" : "s")} found.");
 
                 foreach (var filePath in filePaths)
                 {
@@ -85,8 +84,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogError("An unexpected error occurred.");
-                Console.WriteLine($"Details: {ex.Message}");
+                ConsoleLogger.LogError($"{ex.Message}");
             }
 
             Console.WriteLine();

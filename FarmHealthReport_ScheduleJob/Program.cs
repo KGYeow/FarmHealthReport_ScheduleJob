@@ -1,6 +1,7 @@
 ﻿using FarmHealthReport_ScheduleJob.DTOs;
 using FarmHealthReport_ScheduleJob.Helpers;
 using FarmHealthReport_ScheduleJob.Models;
+using Spectre.Console;
 using System.Text.RegularExpressions;
 
 namespace FarmHealthReport_ScheduleJob
@@ -25,28 +26,55 @@ namespace FarmHealthReport_ScheduleJob
                 // Start timer
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
+                int insertedCount = 0;
+                int duplicateCount = 0;
+                int errorCount = 0;
                 int i = 1;
+
                 foreach (var docReport in docReportContentList)
                 {
-                    Console.WriteLine($"Document #{i}");
-                    Console.WriteLine($"Name            : {docReport.FileName}");
-                    Console.WriteLine($"Size            : {docReport.FileSize} bytes");
-                    Console.WriteLine($"Last Modified   : {docReport.LastModifiedTime:d MMM yyyy, h:mm tt}");
+                    ConsoleLogger.LogInfo($"Processing file {i}/{docReportContentList.Count}:");
+
+                    string docInfo =
+                        $"Name            : {docReport.FileName}\n" +
+                        $"Size            : {docReport.FileSize} bytes\n" +
+                        $"Last Modified   : {docReport.LastModifiedTime:dd/MM/yyyy HH:mm:ss}";
+
+                    var panel = new Panel(docInfo)
+                    {
+                        Header = new PanelHeader($"Document #{i}"),
+                        Padding = new Padding(2, 0, 2, 0)
+                    };
+                    AnsiConsole.Write(panel);
+
+                    try
+                    {
+                        // Insert the document report data into the database
+                        var isInsert = InsertDocReportDataIntoDatabase(docReport.FileContent);
+                        if (isInsert)
+                            insertedCount++;
+                        else
+                            duplicateCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleLogger.LogError($"File {i}/{docReportContentList.Count} {docReport.FileName}: {ex.Message}");
+                        errorCount++;
+                    }
+
                     Console.WriteLine("");
-
-                    // Insert the document report data into the database
-                    InsertDocReportDataIntoDatabase(docReport.FileContent);
-
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine(new string('-', 50));
-                    Console.ResetColor();
                     i++;
                 }
 
                 // Stop timer
                 stopwatch.Stop();
-                TimeSpan duration = stopwatch.Elapsed;
-                ConsoleLogger.LogSuccess($"Document processing completed in {duration.TotalSeconds:F2} seconds.");
+
+                ConsoleLogger.LogInfo(
+                    $"Summary: {insertedCount} new record{(insertedCount == 1 ? "" : "s")}, " +
+                    $"{duplicateCount} duplicate{(duplicateCount == 1 ? "" : "s")} skipped, " +
+                    $"{errorCount} error{(errorCount == 1 ? "" : "s")} failed."
+                );
+                ConsoleLogger.LogInfo($"Total document processing time: {stopwatch.Elapsed.TotalSeconds:F2} s.");
             }
             else
             {
@@ -75,33 +103,21 @@ namespace FarmHealthReport_ScheduleJob
         // Prompt the user to enter the folder path
         static string GetFolderPathFromUser()
         {
-            string? folderPath;
-
-            Console.Write("Enter the folder path: ");
-            folderPath = Console.ReadLine();
-
-            while (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
-            {
-                if (string.IsNullOrWhiteSpace(folderPath))
-                {
-                    ConsoleLogger.LogWarning("Folder path cannot be empty.\n");
-                }
-                else if (!Directory.Exists(folderPath))
-                {
-                    ConsoleLogger.LogWarning("The specified folder does not exist.\n");
-                }
-
-                Console.Write("Please try again: ");
-                folderPath = Console.ReadLine();
-            }
-
-
+            //C:\Users\4093094\Jabil\NurulNajihah AbdulRahim - FARM HEALTH DATA
+            var folderPath = AnsiConsole.Prompt(new TextPrompt<string>("[grey]Enter the folder path (e.g. C:\\Data\\Reports):[/]")
+                .Validate(path =>
+                    string.IsNullOrWhiteSpace(path)
+                        ? ValidationResult.Error("[yellow]Folder path cannot be empty.[/]\n")
+                        : !Directory.Exists(path)
+                        ? ValidationResult.Error("[yellow]The specified folder does not exist.[/]\n")
+                        : ValidationResult.Success()
+                ));
             ConsoleLogger.LogSuccess("Folder path accepted.\n");
             return folderPath;
         }
 
         // Extract the data from the document report text body and insert data to database
-        static void InsertDocReportDataIntoDatabase(string docText)
+        static bool InsertDocReportDataIntoDatabase(string docText)
         {
             ConsoleLogger.LogStep("Starting database insertion process...");
 
@@ -116,7 +132,7 @@ namespace FarmHealthReport_ScheduleJob
                 if (isReportExist)
                 {
                     ConsoleLogger.LogInfo("Skipped: Duplicate report detected.");
-                    return;
+                    return false;
                 }
 
                 // Create collection table related data
@@ -129,39 +145,31 @@ namespace FarmHealthReport_ScheduleJob
             }
 
             ConsoleLogger.LogSuccess("Report inserted successfully.");
+            return true;
         }
 
         // Insert the report to the database
         static ServerHealthReport InsertReportData(string docText, FarmServerMonitoringDbTestContext context)
         {
-            try
+            // Split the document text content into string array
+            var docTextArray = docText.Split(["\r\n", "\n"], StringSplitOptions.None).Select(x => x.Trim()).Skip(1).ToArray();
+
+            // Extract the report information
+            var reportName = docTextArray.FirstOrDefault() ?? string.Empty;
+            var scriptStartTime = Regex.Match(docText, @"Script Start time:\s*(.+)").Groups[1].Value;
+            var scriptEndTime = Regex.Match(docText, @"Script End time:\s*(.+)").Groups[1].Value;
+
+            // Create a farm server health report data
+            var report = new ServerHealthReport()
             {
-                // Split the document text content into string array
-                var docTextArray = docText.Split(["\r\n", "\n"], StringSplitOptions.None).Select(x => x.Trim()).Skip(1).ToArray();
+                Id = reportName.Replace("RDS Health Report", "").Replace(" ", "") + "_" + DateTime.Parse(scriptStartTime).ToString("ddMMyyyy_HHmmss"),
+                ReportName = reportName,
+                ScriptStartTime = DateTime.Parse(scriptStartTime),
+                ScriptEndTime = DateTime.Parse(scriptEndTime),
+            };
 
-                // Extract the report information
-                var reportName = docTextArray.FirstOrDefault() ?? string.Empty;
-                var scriptStartTime = Regex.Match(docText, @"Script Start time:\s*(.+)").Groups[1].Value;
-                var scriptEndTime = Regex.Match(docText, @"Script End time:\s*(.+)").Groups[1].Value;
-
-                // Create a farm server health report data
-                var report = new ServerHealthReport()
-                {
-                    Id = reportName.Replace("RDS Health Report", "").Replace(" ", "") + "_" + DateTime.Parse(scriptStartTime).ToString("ddMMyyyy_HHmmss"),
-                    ReportName = reportName,
-                    ScriptStartTime = DateTime.Parse(scriptStartTime),
-                    ScriptEndTime = DateTime.Parse(scriptEndTime),
-                };
-
-                context.ServerHealthReports.Add(report);
-                return report;
-            }
-            catch (Exception ex)
-            {
-                ConsoleLogger.LogError("An unexpected error occurred.");
-                Console.WriteLine($"Details: {ex.Message}\n");
-            }
-            return new();
+            context.ServerHealthReports.Add(report);
+            return report;
         }
 
         // Insert the collection table to the database
@@ -284,40 +292,32 @@ namespace FarmHealthReport_ScheduleJob
             var numRow = collectionRecords.Count(x => x.Contains("MYPEN", StringComparison.OrdinalIgnoreCase));
             var numCol = 13; // 12 columns + 1 empty line
 
-            try
+            // Loop through all the rows of a collection table
+            for (int i = 0; i < numRow; i++)
             {
-                // Loop through all the rows of a collection table
-                for (int i = 0; i < numRow; i++)
-                {
-                    // Get one row of collection data
-                    var collectionRow = collectionRecords.Skip(i * numCol).Take(numCol).ToList();
+                // Get one row of collection data
+                var collectionRow = collectionRecords.Skip(i * numCol).Take(numCol).ToList();
 
-                    // Create a collection record
-                    var collectionRecord = new CollectionRecord()
-                    {
-                        CollectionId = collectionId,
-                        ServerName = collectionRow[0],
-                        Enabled = collectionRow[1],
-                        CpuUsage = collectionRow[2],
-                        MemoryUsage = collectionRow[3],
-                        CdriveFreeSpace = collectionRow[4],
-                        DdriveFreeSpace = collectionRow[5],
-                        Uptime = collectionRow[6],
-                        PendingReboot = collectionRow[7],
-                        SessionsTotal = collectionRow[8],
-                        SessionsActive = collectionRow[9],
-                        SessionsDisc = collectionRow[10],
-                        SessionsNull = collectionRow[11]
-                    };
-                    context.CollectionRecords.Add(collectionRecord);
-                }
-                context.SaveChanges();
+                // Create a collection record
+                var collectionRecord = new CollectionRecord()
+                {
+                    CollectionId = collectionId,
+                    ServerName = collectionRow[0],
+                    Enabled = collectionRow[1],
+                    CpuUsage = collectionRow[2],
+                    MemoryUsage = collectionRow[3],
+                    CdriveFreeSpace = collectionRow[4],
+                    DdriveFreeSpace = collectionRow[5],
+                    Uptime = collectionRow[6],
+                    PendingReboot = collectionRow[7],
+                    SessionsTotal = collectionRow[8],
+                    SessionsActive = collectionRow[9],
+                    SessionsDisc = collectionRow[10],
+                    SessionsNull = collectionRow[11]
+                };
+                context.CollectionRecords.Add(collectionRecord);
             }
-            catch (Exception ex)
-            {
-                ConsoleLogger.LogError("An unexpected error occurred.");
-                Console.WriteLine($"Details: {ex.Message}\n");
-            }
+            context.SaveChanges();
         }
 
         // Insert the connection brokers to the database
@@ -328,29 +328,21 @@ namespace FarmHealthReport_ScheduleJob
 
             foreach (var connectionBroker in connectionBrokers)
             {
-                try
-                {
-                    // Check if the connection broker has already existed in the database
-                    var existingConnectionBroker = context.ConnectionBrokers.Where(a => a.Name == connectionBroker).FirstOrDefault();
+                // Check if the connection broker has already existed in the database
+                var existingConnectionBroker = context.ConnectionBrokers.Where(a => a.Name == connectionBroker).FirstOrDefault();
 
-                    // Create the connection broker if it doesn't exist in database
-                    if (existingConnectionBroker == null)
-                    {
-                        var newConnectionBroker = new ConnectionBroker()
-                        {
-                            Name = connectionBroker,
-                            Reports = [report]
-                        };
-                        context.ConnectionBrokers.Add(newConnectionBroker);
-                    }
-                    else
-                        existingConnectionBroker.Reports.Add(report);
-                }
-                catch (Exception ex)
+                // Create the connection broker if it doesn't exist in database
+                if (existingConnectionBroker == null)
                 {
-                    ConsoleLogger.LogError("An unexpected error occurred.");
-                    Console.WriteLine($"Details: {ex.Message}\n");
+                    var newConnectionBroker = new ConnectionBroker()
+                    {
+                        Name = connectionBroker,
+                        Reports = [report]
+                    };
+                    context.ConnectionBrokers.Add(newConnectionBroker);
                 }
+                else
+                    existingConnectionBroker.Reports.Add(report);
             }
         }
     }
