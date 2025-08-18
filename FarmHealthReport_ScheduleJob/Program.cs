@@ -122,7 +122,7 @@ namespace FarmHealthReport_ScheduleJob
             ConsoleLogger.LogStep("Starting database insertion process...");
 
             // Create a new instance of the database context to interact with the database
-            using (var context = new FarmServerMonitoringDbTestContext())
+            using (var context = new FarmServerMonitoringDbContext())
             {
                 // Create report data
                 var report = InsertReportData(docText, context);
@@ -149,7 +149,7 @@ namespace FarmHealthReport_ScheduleJob
         }
 
         // Insert the report to the database
-        static ServerHealthReport InsertReportData(string docText, FarmServerMonitoringDbTestContext context)
+        static ServerHealthReport InsertReportData(string docText, FarmServerMonitoringDbContext context)
         {
             // Split the document text content into string array
             var docTextArray = docText.Split(["\r\n", "\n"], StringSplitOptions.None).Select(x => x.Trim()).Skip(1).ToArray();
@@ -173,7 +173,7 @@ namespace FarmHealthReport_ScheduleJob
         }
 
         // Insert the collection table to the database
-        static void InsertCollectionTableData(string docText, string reportId, FarmServerMonitoringDbTestContext context)
+        static void InsertCollectionTableData(string docText, string reportId, FarmServerMonitoringDbContext context)
         {
             // Split the document text content into string array
             var lines = docText.Split(["\r\n", "\n"], StringSplitOptions.None).Select(x => x.Trim()).Skip(1).ToArray();
@@ -286,7 +286,7 @@ namespace FarmHealthReport_ScheduleJob
         }
 
         // Insert the collection table's records to the database
-        static void InsertCollectionRecordData(List<string> collectionRecords, int collectionId, FarmServerMonitoringDbTestContext context)
+        static void InsertCollectionRecordData(List<string> collectionRecords, int collectionId, FarmServerMonitoringDbContext context)
         {
             // Initialize the number of rows and columns in a collection table
             var numRow = collectionRecords.Count(x => x.Contains("MYPEN", StringComparison.OrdinalIgnoreCase));
@@ -321,7 +321,7 @@ namespace FarmHealthReport_ScheduleJob
         }
 
         // Insert the connection brokers to the database
-        static void InsertConnectionBrokerData(string docText, ServerHealthReport report, FarmServerMonitoringDbTestContext context)
+        static void InsertConnectionBrokerData(string docText, ServerHealthReport report, FarmServerMonitoringDbContext context)
         {
             // Get the connection brokers from the document report text
             var connectionBrokers = Regex.Match(docText, @"ConnectionBrokers:\s*(.+)").Groups[1].Value.Split([", "], StringSplitOptions.None).Select(x => x.Trim()).ToArray();

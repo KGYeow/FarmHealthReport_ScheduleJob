@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FarmHealthReport_ScheduleJob.Models;
 
-public partial class FarmServerMonitoringDbTestContext : DbContext
+public partial class FarmServerMonitoringDbContext : DbContext
 {
-    public FarmServerMonitoringDbTestContext()
+    public FarmServerMonitoringDbContext()
     {
     }
 
-    public FarmServerMonitoringDbTestContext(DbContextOptions<FarmServerMonitoringDbTestContext> options)
+    public FarmServerMonitoringDbContext(DbContextOptions<FarmServerMonitoringDbContext> options)
         : base(options)
     {
     }
@@ -25,7 +25,7 @@ public partial class FarmServerMonitoringDbTestContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=awase1pensql81;Database=FarmServerMonitoringDB_Test;Trusted_Connection=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=awase1pensql81;Database=FarmServerMonitoringDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
