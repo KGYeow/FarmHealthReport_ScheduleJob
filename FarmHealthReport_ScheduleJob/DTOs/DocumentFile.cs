@@ -20,10 +20,10 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                 ConsoleLogger.LogStep("Retrieving document file reports from local folder...");
 
                 // Get all the htm files' path from the folder path
-                string folderPath = @"C:\Users\4093094\Jabil\NurulNajihah AbdulRahim - FARM HEALTH DATA";
+                string folderPath = @"\\azapseazhw01\rdsmonapse\Asia\RDSReport";
                 ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
-                var filePaths = Directory.GetFiles(folderPath, "*.htm");
+                var filePaths = Directory.GetFiles(folderPath, "*.htm").Where(f => Path.GetFileName(f).Contains("PEN", StringComparison.Ordinal)).ToArray();
                 ConsoleLogger.LogInfo($"{DateTime.Now:dd/MM/yyyy HH:mm:ss} - Found {filePaths.Length} file(s) in folder.");
 
                 foreach (var filePath in filePaths)
@@ -63,7 +63,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                 // Get all the htm files' path from the folder path
                 ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
-                var filePaths = Directory.GetFiles(folderPath, "*.htm");
+                var filePaths = Directory.GetFiles(folderPath, "*.htm").Where(f => Path.GetFileName(f).Contains("PEN", StringComparison.Ordinal)).ToArray();
                 ConsoleLogger.LogInfo($"{filePaths.Length} document{(filePaths.Length == 1 ? "" : "s")} found.");
 
                 foreach (var filePath in filePaths)
