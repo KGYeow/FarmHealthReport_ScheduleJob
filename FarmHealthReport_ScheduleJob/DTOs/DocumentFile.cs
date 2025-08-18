@@ -20,7 +20,7 @@ namespace FarmHealthReport_ScheduleJob.DTOs
                 ConsoleLogger.LogStep("Retrieving document file reports from local folder...");
 
                 // Get all the htm files' path from the folder path
-                string folderPath = @"C:\Users\4093094\Jabil\NurulNajihah AbdulRahim - FARM HEALTH DATA";
+                string folderPath = @"C:\Users\4021555\OneDrive - Jabil\FARM HEALTH DATA";
                 ConsoleLogger.LogInfo($"Folder path: {folderPath}");
 
                 var filePaths = Directory.GetFiles(folderPath, "*.htm");
