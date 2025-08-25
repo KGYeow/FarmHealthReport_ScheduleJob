@@ -169,7 +169,7 @@ namespace FarmHealthReport_ScheduleJob
                 ScriptEndTime = DateTime.Parse(scriptEndTime),
                 ActiveManagementServer = activeManagementServer.Substring(0, activeManagementServer.IndexOf('.'))
             };
-            Console.WriteLine(report.ActiveManagementServer);
+            
             context.ServerHealthReports.Add(report);
             return report;
         }
