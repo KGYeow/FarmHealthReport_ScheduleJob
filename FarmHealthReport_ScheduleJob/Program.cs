@@ -158,6 +158,7 @@ namespace FarmHealthReport_ScheduleJob
             var reportName = docTextArray.FirstOrDefault() ?? string.Empty;
             var scriptStartTime = Regex.Match(docText, @"Script Start time:\s*(.+)").Groups[1].Value;
             var scriptEndTime = Regex.Match(docText, @"Script End time:\s*(.+)").Groups[1].Value;
+            var activeManagementServer = Regex.Match(docText, @"ActiveManagementServer:\s*(.+)").Groups[1].Value;
 
             // Create a farm server health report data
             var report = new ServerHealthReport()
@@ -166,8 +167,9 @@ namespace FarmHealthReport_ScheduleJob
                 ReportName = reportName,
                 ScriptStartTime = DateTime.Parse(scriptStartTime),
                 ScriptEndTime = DateTime.Parse(scriptEndTime),
+                ActiveManagementServer = activeManagementServer.Substring(0, activeManagementServer.IndexOf('.'))
             };
-
+            Console.WriteLine(report.ActiveManagementServer);
             context.ServerHealthReports.Add(report);
             return report;
         }

@@ -142,6 +142,7 @@ public partial class FarmServerMonitoringDbContext : DbContext
             entity.ToTable("ServerHealthReport");
 
             entity.Property(e => e.Id).HasMaxLength(100);
+            entity.Property(e => e.ActiveManagementServer).HasMaxLength(50);
             entity.Property(e => e.ScriptEndTime).HasColumnType("datetime");
             entity.Property(e => e.ScriptStartTime).HasColumnType("datetime");
 

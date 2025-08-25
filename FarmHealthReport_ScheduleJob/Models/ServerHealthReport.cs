@@ -13,6 +13,8 @@ public partial class ServerHealthReport
 
     public DateTime ScriptEndTime { get; set; }
 
+    public string? ActiveManagementServer { get; set; }
+
     public virtual ICollection<Collection> Collections { get; set; } = new List<Collection>();
 
     public virtual ICollection<ConnectionBroker> ConnectionBrokerNames { get; set; } = new List<ConnectionBroker>();
