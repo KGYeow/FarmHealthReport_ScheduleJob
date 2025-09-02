@@ -37,7 +37,7 @@ namespace FarmHealthReport_ScheduleJob
 
                     string docInfo =
                         $"Name            : {docReport.FileName}\n" +
-                        $"Size            : {docReport.FileSize} bytes\n" +
+                        //$"Size            : {docReport.FileSize} bytes\n" +
                         $"Last Modified   : {docReport.LastModifiedTime:dd/MM/yyyy HH:mm:ss}";
 
                     var panel = new Panel(docInfo)
@@ -60,6 +60,15 @@ namespace FarmHealthReport_ScheduleJob
                     {
                         ConsoleLogger.LogError($"File {i}/{docReportContentList.Count} {docReport.FileName}: {ex.Message}");
                         errorCount++;
+
+                        if (ex.InnerException != null)
+                        {
+                            ConsoleLogger.LogError("Inner Exception: " + ex.InnerException.Message);
+                            if (ex.InnerException.InnerException != null)
+                            {
+                                ConsoleLogger.LogError("Inner Inner Exception: " + ex.InnerException.InnerException.Message);
+                            }
+                        }
                     }
 
                     Console.WriteLine("");
@@ -94,7 +103,7 @@ namespace FarmHealthReport_ScheduleJob
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("==================================================");
-            Console.WriteLine("         FARM HEALTH REPORT PROCESSOR             ");
+            Console.WriteLine("        RDS FARM HEALTH REPORT PROCESSOR          ");
             Console.WriteLine("==================================================");
             Console.ResetColor();
             Console.WriteLine();
