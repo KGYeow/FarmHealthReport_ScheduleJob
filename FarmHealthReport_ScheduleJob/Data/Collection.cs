@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FarmHealthReport_ScheduleJob.Models;
+namespace FarmHealthReport_ScheduleJob.Data;
 
 public partial class Collection
 {

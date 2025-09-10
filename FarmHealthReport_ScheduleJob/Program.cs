@@ -1,6 +1,6 @@
-﻿using FarmHealthReport_ScheduleJob.DTOs;
+﻿using FarmHealthReport_ScheduleJob.Data;
+using FarmHealthReport_ScheduleJob.DTOs;
 using FarmHealthReport_ScheduleJob.Helpers;
-using FarmHealthReport_ScheduleJob.Models;
 using Spectre.Console;
 using System.Text.RegularExpressions;
 
@@ -11,10 +11,6 @@ namespace FarmHealthReport_ScheduleJob
         static void Main(string[] args)
         {
             DisplayProgramTitle();
-
-            // Prompt the user to enter the folder path to get the document reports.
-            //string folderPath = GetFolderPathFromUser();
-            //var docReportContentList = DocumentFile.ReadDocsFromLocalPath(folderPath);
 
             // Get the document reports from the local OneDrive folder path.
             var docReportContentList = DocumentFile.ReadDocsFromLocalOneDrive();
@@ -102,27 +98,11 @@ namespace FarmHealthReport_ScheduleJob
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("==================================================");
-            Console.WriteLine("        RDS FARM HEALTH REPORT PROCESSOR          ");
-            Console.WriteLine("==================================================");
+            Console.WriteLine("===================================================");
+            Console.WriteLine("        RDS FARM HEALTH REPORT SCHEDULE JOB        ");
+            Console.WriteLine("===================================================");
             Console.ResetColor();
             Console.WriteLine();
-        }
-
-        // Prompt the user to enter the folder path
-        static string GetFolderPathFromUser()
-        {
-            //C:\Users\4093094\Jabil\NurulNajihah AbdulRahim - FARM HEALTH DATA
-            var folderPath = AnsiConsole.Prompt(new TextPrompt<string>("[grey]Enter the folder path (e.g. C:\\Data\\Reports):[/]")
-                .Validate(path =>
-                    string.IsNullOrWhiteSpace(path)
-                        ? ValidationResult.Error("[yellow]Folder path cannot be empty.[/]\n")
-                        : !Directory.Exists(path)
-                        ? ValidationResult.Error("[yellow]The specified folder does not exist.[/]\n")
-                        : ValidationResult.Success()
-                ));
-            ConsoleLogger.LogSuccess("Folder path accepted.\n");
-            return folderPath;
         }
 
         // Extract the data from the document report text body and insert data to database
