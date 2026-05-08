@@ -15,6 +15,12 @@ public partial class ServerHealthReport
 
     public string? ActiveManagementServer { get; set; }
 
+    // Foreign key to ReportGenerateServer
+    public int? ReportGenerateServerId { get; set; }
+
+    // Navigation properties
+    public virtual ReportGenerateServer? ReportGenerateServer { get; set; }
+
     public virtual ICollection<Collection> Collections { get; set; } = new List<Collection>();
 
     public virtual ICollection<ConnectionBroker> ConnectionBrokerNames { get; set; } = new List<ConnectionBroker>();

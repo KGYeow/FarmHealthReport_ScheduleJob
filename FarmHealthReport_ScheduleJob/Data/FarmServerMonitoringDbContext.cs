@@ -24,6 +24,8 @@ public partial class FarmServerMonitoringDbContext : DbContext
 
     public virtual DbSet<ServerHealthReport> ServerHealthReports { get; set; }
 
+    public virtual DbSet<ReportGenerateServer> ReportGenerateServers { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Server=awase1pensql81;Database=FarmServerMonitoringDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
@@ -143,6 +145,7 @@ public partial class FarmServerMonitoringDbContext : DbContext
 
             entity.Property(e => e.Id).HasMaxLength(100);
             entity.Property(e => e.ActiveManagementServer).HasMaxLength(50);
+            entity.Property(e => e.ReportGenerateServerId).HasColumnName("ReportGenerateServerId");
             entity.Property(e => e.ScriptEndTime).HasColumnType("datetime");
             entity.Property(e => e.ScriptStartTime).HasColumnType("datetime");
 
@@ -164,6 +167,25 @@ public partial class FarmServerMonitoringDbContext : DbContext
                         j.IndexerProperty<string>("ReportId").HasMaxLength(100);
                         j.IndexerProperty<string>("ConnectionBrokerName").HasMaxLength(50);
                     });
+        });
+
+        modelBuilder.Entity<ReportGenerateServer>(entity =>
+        {
+            entity.ToTable("ReportGenerateServer");
+
+            entity.Property(e => e.ServerName)
+                .HasMaxLength(100)
+                .IsRequired();
+            entity.Property(e => e.Location)
+                .HasMaxLength(50);
+            entity.Property(e => e.UtcOffset)
+                .HasMaxLength(10);
+
+            entity.HasMany(s => s.ServerHealthReports)
+                .WithOne(r => r.ReportGenerateServer)
+                .HasForeignKey(r => r.ReportGenerateServerId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_ServerHealthReport_ReportGenerateServer");
         });
 
         OnModelCreatingPartial(modelBuilder);

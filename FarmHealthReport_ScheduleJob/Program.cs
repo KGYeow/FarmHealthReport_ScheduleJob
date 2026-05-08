@@ -149,6 +149,16 @@ namespace FarmHealthReport_ScheduleJob
             var scriptEndTime = Regex.Match(docText, @"Script End time:\s*(.+)").Groups[1].Value;
             var activeManagementServer = Regex.Match(docText, @"ActiveManagementServer:\s*(.+)").Groups[1].Value;
 
+            // Extract the generate server name from "Generated on:" field
+            var generatedOn = Regex.Match(docText, @"Generated on:\s*(.+)").Groups[1].Value.Trim();
+
+            // Get or create the generate server record
+            ReportGenerateServer? generateServer = null;
+            if (!string.IsNullOrEmpty(generatedOn))
+            {
+                generateServer = GetOrCreateReportGenerateServer(generatedOn, context);
+            }
+
             // Create a farm server health report data
             var report = new ServerHealthReport()
             {
@@ -156,11 +166,34 @@ namespace FarmHealthReport_ScheduleJob
                 ReportName = reportName,
                 ScriptStartTime = DateTime.Parse(scriptStartTime),
                 ScriptEndTime = DateTime.Parse(scriptEndTime),
-                ActiveManagementServer = activeManagementServer.Substring(0, activeManagementServer.IndexOf('.'))
+                ActiveManagementServer = activeManagementServer.Substring(0, activeManagementServer.IndexOf('.')),
+                ReportGenerateServer = generateServer
             };
             
             context.ServerHealthReports.Add(report);
             return report;
+        }
+
+        // Get or create a ReportGenerateServer record based on server name
+        static ReportGenerateServer GetOrCreateReportGenerateServer(string serverName, FarmServerMonitoringDbContext context)
+        {
+            // Check if the server already exists in the database
+            var existingServer = context.ReportGenerateServers
+                .FirstOrDefault(s => s.ServerName == serverName);
+
+            if (existingServer != null)
+                return existingServer;
+
+            // Create a new server record
+            var newServer = new ReportGenerateServer
+            {
+                ServerName = serverName,
+                Location = null,
+                UtcOffset = null
+            };
+            context.ReportGenerateServers.Add(newServer);
+
+            return newServer;
         }
 
         // Insert the collection table to the database
